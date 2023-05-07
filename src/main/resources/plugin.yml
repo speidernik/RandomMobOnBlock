@@ -1,0 +1,4 @@
+name: RandomBlock
+version: '${project.version}'
+main: org.nicemods.randomblock.RandomBlock
+api-version: 1.19
