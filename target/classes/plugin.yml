@@ -1,4 +1,4 @@
 name: RandomBlock
-version: '2.5-SNAPSHOT'
-main: org.nicemods.randomblock.RandomBlock
+version: '1.0'
+main: org.Speidernik.randomblock.RandomBlock
 api-version: 1.19

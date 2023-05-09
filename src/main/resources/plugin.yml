@@ -1,4 +1,4 @@
 name: RandomBlock
 version: '${project.version}'
-main: org.nicemods.randomblock.RandomBlock
+main: org.Speidernik.randomblock.RandomBlock
 api-version: 1.19

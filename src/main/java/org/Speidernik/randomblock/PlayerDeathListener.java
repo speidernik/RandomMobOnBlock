@@ -1,4 +1,4 @@
-package org.nicemods.randomblock;
+package org.Speidernik.randomblock;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -24,25 +24,26 @@ public class PlayerDeathListener implements Listener {
     private final RandomBlock plugin;
     public Set<UUID> playersToClearInventory;
     public Set<UUID> allPlayers;
+    public Boolean reset;
     Location newSpawnLocation;
 
     public PlayerDeathListener(RandomBlock plugin) {
         this.plugin = plugin;
         this.playersToClearInventory = new HashSet<>();
         this.allPlayers = new HashSet<>();
+        this.reset = false;
     }
 
     @EventHandler
     public void onPlayerDeath(PlayerDeathEvent event) {
         plugin.cleanList();
         newSpawnLocation = getNewSpawnLocation();
+        reset = true;
 
         for (UUID uuid : allPlayers) {
             Player player = Bukkit.getPlayer(uuid);
 
-            // If the player is not online, add their UUID to playersToClearInventory
-            assert player != null;
-            if (!player.isOnline()) {
+            if (player == null || !player.isOnline()) {
                 playersToClearInventory.add(uuid);
                 continue;
             }
@@ -55,6 +56,9 @@ public class PlayerDeathListener implements Listener {
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
+        if (!allPlayers.contains(player.getUniqueId()) && reset) {
+            resetPlayer(player);
+        }
         if (playersToClearInventory.contains(player.getUniqueId())) {
             resetPlayer(player);
             playersToClearInventory.remove(player.getUniqueId());
@@ -65,11 +69,18 @@ public class PlayerDeathListener implements Listener {
     @EventHandler
     public void onPlayerRespawn(PlayerRespawnEvent event) {
         Player player = event.getPlayer();
-        resetPlayer(player);
+        event.setRespawnLocation(newSpawnLocation);
+        resetPlayer(player, false);
     }
 
     private void resetPlayer(Player player) {
-        player.setBedSpawnLocation(newSpawnLocation, true);
+        resetPlayer(player, true);
+    }
+
+    private void resetPlayer(Player player, boolean updateSpawnLocation) {
+        if (updateSpawnLocation) {
+            player.setBedSpawnLocation(newSpawnLocation, true);
+        }
         player.teleport(newSpawnLocation);
         AttributeInstance maxHealth = player.getAttribute(Attribute.GENERIC_MAX_HEALTH);
         if (maxHealth != null) {

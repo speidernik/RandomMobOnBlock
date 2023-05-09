@@ -1,4 +1,4 @@
-package org.nicemods.randomblock;
+package org.Speidernik.randomblock;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;

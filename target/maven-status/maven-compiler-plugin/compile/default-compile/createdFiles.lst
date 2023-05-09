@@ -1,2 +1,2 @@
-org\nicemods\randomblock\PlayerDeathListener.class
-org\nicemods\randomblock\RandomBlock.class
+org\Speidernik\randomblock\RandomBlock.class
+org\Speidernik\randomblock\PlayerDeathListener.class
