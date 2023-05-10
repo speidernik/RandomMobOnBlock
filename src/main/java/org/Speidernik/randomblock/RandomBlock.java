@@ -67,8 +67,11 @@ public class RandomBlock extends JavaPlugin implements Listener {
         if (entityType.isAlive() && entityType.isSpawnable()) {
             assert entityType.getEntityClass() != null;
             block.getWorld().spawn(block.getLocation().add(0.5, 0.5, 0.5), entityType.getEntityClass());
-        } else {
-            getLogger().warning("Could not spawn entity of type " + entityType.name() + " because it is not spawnable or alive.");
+            return;
         }
+
+
+        getLogger().warning("Could not spawn entity of type " + entityType.name() + " because it is not spawnable or alive.");
+
     }
 }

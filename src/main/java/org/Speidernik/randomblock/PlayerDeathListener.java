@@ -26,6 +26,7 @@ public class PlayerDeathListener implements Listener {
     public Set<UUID> allPlayers;
     public Boolean reset;
     Location newSpawnLocation;
+    
 
     public PlayerDeathListener(RandomBlock plugin) {
         this.plugin = plugin;
