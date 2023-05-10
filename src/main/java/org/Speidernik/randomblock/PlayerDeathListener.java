@@ -11,22 +11,19 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
-import org.bukkit.inventory.PlayerInventory;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
-
-import static org.bukkit.Bukkit.getServer;
 
 public class PlayerDeathListener implements Listener {
 
     private final RandomBlock plugin;
-    public Set<UUID> playersToClearInventory;
-    public Set<UUID> allPlayers;
-    public Boolean reset;
-    Location newSpawnLocation;
-    
+    private final Set<UUID> playersToClearInventory;
+    private final Set<UUID> allPlayers;
+    private Location newSpawnLocation;
+    private boolean reset;
 
     public PlayerDeathListener(RandomBlock plugin) {
         this.plugin = plugin;
@@ -40,31 +37,28 @@ public class PlayerDeathListener implements Listener {
         plugin.cleanList();
         newSpawnLocation = getNewSpawnLocation();
         reset = true;
+        Objects.requireNonNull(newSpawnLocation.getWorld()).setTime(0);
 
-        for (UUID uuid : allPlayers) {
+        allPlayers.forEach(uuid -> {
             Player player = Bukkit.getPlayer(uuid);
-
             if (player == null || !player.isOnline()) {
                 playersToClearInventory.add(uuid);
-                continue;
+                return;
             }
-            if (!isPlayerAlive(player)) continue;
-
+            if (!isPlayerAlive(player)) return;
             resetPlayer(player);
-        }
+        });
     }
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
-        Player player = event.getPlayer();
-        if (!allPlayers.contains(player.getUniqueId()) && reset) {
-            resetPlayer(player);
+        UUID playerUUID = event.getPlayer().getUniqueId();
+        if (allPlayers.add(playerUUID) && reset) {
+            resetPlayer(event.getPlayer());
         }
-        if (playersToClearInventory.contains(player.getUniqueId())) {
-            resetPlayer(player);
-            playersToClearInventory.remove(player.getUniqueId());
+        if (playersToClearInventory.remove(playerUUID)) {
+            resetPlayer(event.getPlayer());
         }
-        allPlayers.add(player.getUniqueId());
     }
 
     @EventHandler
@@ -88,8 +82,7 @@ public class PlayerDeathListener implements Listener {
             player.setHealth(maxHealth.getValue());
         }
         player.setFoodLevel(20);
-        PlayerInventory inventory = player.getInventory();
-        inventory.clear();
+        player.getInventory().clear();
         player.setLevel(0);
         player.setExp(0);
     }
@@ -99,21 +92,13 @@ public class PlayerDeathListener implements Listener {
     }
 
     private Location getNewSpawnLocation() {
-        World world = getServer().getWorlds().get(0);
+        World world = Bukkit.getServer().getWorlds().get(0);
         Location currentSpawnLocation = world.getSpawnLocation();
-
-
-        // 10,000 blocks north (negative Z direction) from the current spawn location
         double x = currentSpawnLocation.getX();
         double z = currentSpawnLocation.getZ() - 10000;
-
-        // Get the highest block Y-coordinate at the new spawn location
         int y = world.getHighestBlockYAt((int) x, (int) z);
-
-        // Set the new spawn location one block above the highest block
         Location newSpawnLocation = new Location(world, x, y + 1, z);
         world.setSpawnLocation(newSpawnLocation);
         return newSpawnLocation;
-
     }
 }
