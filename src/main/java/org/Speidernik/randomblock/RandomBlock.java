@@ -46,9 +46,7 @@ public class RandomBlock extends JavaPlugin implements Listener {
         String blockType = block.getType().toString();
 
         EntityType entityType;
-        if (blockMobMap.containsKey(blockType)) {
-            entityType = blockMobMap.get(blockType);
-        } else {
+        if (!blockMobMap.containsKey(blockType)) {
             if (entityTypes == null) {
                 initializeEntityTypes();
             }
@@ -63,6 +61,7 @@ public class RandomBlock extends JavaPlugin implements Listener {
             blockMobMap.put(blockType, entityType);
             Bukkit.broadcastMessage(ChatColor.GREEN + "From now on, breaking " + blockType + " blocks will spawn " + entityType.name() + "s.");
         }
+        entityType = blockMobMap.get(blockType);
 
         if (entityType.isAlive() && entityType.isSpawnable()) {
             assert entityType.getEntityClass() != null;
@@ -70,8 +69,6 @@ public class RandomBlock extends JavaPlugin implements Listener {
             return;
         }
 
-
         getLogger().warning("Could not spawn entity of type " + entityType.name() + " because it is not spawnable or alive.");
-
     }
 }
